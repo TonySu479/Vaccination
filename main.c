@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*Operacios rendszerek beadando A1SXTS Su Ruilong*/
-
 #define DATA_SIZE 100
 
 typedef struct Patient{
@@ -22,6 +20,7 @@ typedef struct PatientGroup{
 PatientGroup* patient_group;
 
 PatientGroup* initPatients(const char* fileName){
+
     PatientGroup* patients = (PatientGroup*)malloc(sizeof(PatientGroup));
     patients->size = 0;
     FILE *fPtr;
@@ -111,6 +110,7 @@ void addPatient()
         printf("Unable to open patients.txt\n");
         return;
     }
+
 	fputs(name,fPtr);
 	fputs("\n", fPtr);
 	fputs(year,fPtr);
@@ -120,18 +120,33 @@ void addPatient()
 	fputs(service,fPtr);
 	fputs("\n", fPtr);
 	fclose(fPtr);
+
     patient_group = initPatients("patients.txt");
     printf("Patient added!\n");
+
 	showMenu();
 }
 
+void makeChanges() {
+    rename("patients.txt", "_patients.txt");
+    rename("temp.txt", "patients.txt");
+    free(patient_group->everyPatient);
+    free(patient_group);
+    patient_group = initPatients("patients.txt");
+    remove("_patients.txt");
+    remove("temp.txt");
+}
+
 void deletePatient(){
+
     int del_patient_id = -1;
     printf("\nWrite the ID of the patient that you would like to delete!\n");
     scanf("%d", &del_patient_id);
+
     if(del_patient_id < 1 || del_patient_id > patient_group->size){
         printf("Invalid Patient ID!\n");
     }
+
     else{
         Patient* everyPC = (Patient*)malloc(sizeof(Patient)*(patient_group->size-1));
         int j = 0;
@@ -161,15 +176,11 @@ void deletePatient(){
             fputs(patient_group->everyPatient[i].service, fPtr);
             fputs("\n", fPtr);
         }
+
         fclose(fPtr);
-        rename("patients.txt", "_patients.txt");
-        rename("temp.txt", "patients.txt");
-        free(patient_group->everyPatient);
-        free(patient_group);
-        patient_group = initPatients("patients.txt");
-        remove("_patients.txt");
-        remove("temp.txt");
-        printf("patient deleted!\n");
+
+        makeChanges()
+        printf("patient deleted!\n\n");
     }
     showMenu();
 }
@@ -177,8 +188,10 @@ void deletePatient(){
 void editPatient(){
     int edit_patient_id = -1;
     int option = -1;
+
     printf("Please enter the ID of the worker you would like to edit\n");
     scanf("%d", &edit_patient_id);
+
     if(edit_patient_id < 1 || edit_patient_id > patient_group->size){
         printf("Invalid Patient ID");
     } else {
@@ -251,14 +264,9 @@ void editPatient(){
 			fputs("\n", fPtr);
         }
         fclose(fPtr);
-        rename("patients.txt", "_patients.txt");
-		rename("temp.txt", "patients.txt");
-        free(patient_group->everyPatient);
-        free(patient_group);
-        patient_group = initPatients("patients.txt");
+
+        makeChanges()
         printf("Patient edited!\n");
-        remove("_patients.txt");
-        remove("temp.txt");
     }
     showMenu();
 }
